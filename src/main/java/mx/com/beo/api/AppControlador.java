@@ -32,6 +32,7 @@ public class AppControlador {
 	private static final Logger LOGGER = LoggerFactory.getLogger(AppControlador.class);
 
 	
+	
 	/**
 	 * Servicio para retornar un objeto OCTET_STREAM.
      * @param Objeto JSON para recibir los datos por el RequestBody.
@@ -39,7 +40,91 @@ public class AppControlador {
      * @return Objeto OCTET_STREAM.
      * @throws Si el objeto OCTET_STREAM llega corrupto.
      */
-	@RequestMapping(value = "/PDF", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_OCTET_STREAM_VALUE)  
+	@RequestMapping(value = "/file", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE, produces = {MediaType.APPLICATION_JSON_VALUE,
+																														  MediaType.APPLICATION_XML_VALUE,
+																														  MediaType.APPLICATION_OCTET_STREAM_VALUE})
+	public ResponseEntity<Object> file(RequestEntity<Object> request) throws IOException {
+		
+		// Variables
+		Map<String,Object> mapBody = new HashMap<String,Object>();
+		mapBody = (Map<String,Object>) request.getBody();
+		String typeFile = mapBody.get("typeFile").toString();
+		final String JSON="1", XML="2", OCTEC_STREAM="3";
+		ClassPathResource pdfFile = null;
+		
+		
+		switch(typeFile){
+		
+			case JSON:
+				LOGGER.info("EndPoint JSON");
+				
+				Map<String,Object> map = new HashMap<String,Object>();
+				map.put("type", "JSON");
+				map.put("EndPoint", "JSON");
+				
+			    return ResponseEntity
+			            .ok()
+			            .contentType(
+			                    MediaType.parseMediaType("application/json"))
+			            .body(map);
+				//break;
+				
+			case XML:
+				LOGGER.info("EndPoint XML");
+				
+				pdfFile = new ClassPathResource("EjemploXML.xml");
+				
+			    return ResponseEntity
+			            .ok()
+			            .contentLength(pdfFile.contentLength())
+			            .contentType(
+			                    MediaType.parseMediaType("application/xml"))
+			            .body(new InputStreamResource(pdfFile.getInputStream()));
+				//break;
+				
+			case OCTEC_STREAM:
+				LOGGER.info("EndPoint PDF");
+				LOGGER.info("JSON: " + request.getBody().toString());
+				
+				pdfFile = new ClassPathResource("menu.pdf");
+				
+			    return ResponseEntity
+			            .ok()
+			            .contentLength(pdfFile.contentLength())
+			            .contentType(
+			                    MediaType.parseMediaType("application/octet-stream"))
+			            .body(new InputStreamResource(pdfFile.getInputStream()));
+				//break;
+				
+				default:
+					System.out.println("Archivo NO Valido");
+					break;
+		
+		}
+		
+		
+		LOGGER.info("EndPoint PDF");
+		LOGGER.info("JSON: " + request.getBody().toString());
+		pdfFile = new ClassPathResource("menu.pdf");
+		
+	    return ResponseEntity
+	            .ok()
+	            .contentLength(pdfFile.contentLength())
+	            .contentType(
+	                    MediaType.parseMediaType("application/octet-stream"))
+	            .body(new InputStreamResource(pdfFile.getInputStream()));
+	}
+	
+	
+	
+	/**
+	 * Servicio para retornar un objeto OCTET_STREAM.
+     * @param Objeto JSON para recibir los datos por el RequestBody.
+     * 
+     * @return Objeto OCTET_STREAM.
+     * @throws Si el objeto OCTET_STREAM llega corrupto.
+     */
+	@RequestMapping(value = "/PDF", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_OCTET_STREAM_VALUE)
 	public ResponseEntity<Object> PDF(RequestEntity<Object> request) throws IOException {
 		
 		LOGGER.info("EndPoint PDF");
@@ -51,7 +136,7 @@ public class AppControlador {
 	            .contentLength(pdfFile.contentLength())
 	            .contentType(
 	                    MediaType.parseMediaType("application/octet-stream"))
-	            .body(new InputStreamResource(pdfFile.getInputStream()));   // )
+	            .body(new InputStreamResource(pdfFile.getInputStream()));
 	}
 	
 	
