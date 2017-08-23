@@ -44,7 +44,7 @@ public class AppControlador {
 		
 		LOGGER.info("EndPoint PDF");
 		LOGGER.info("JSON: " + request.getBody().toString());
-		ClassPathResource pdfFile = new ClassPathResource("EjemploPDF.pdf");
+		ClassPathResource pdfFile = new ClassPathResource("menu.pdf");
 		
 	    return ResponseEntity
 	            .ok()
