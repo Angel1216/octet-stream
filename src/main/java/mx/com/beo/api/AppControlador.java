@@ -31,15 +31,14 @@ public class AppControlador {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(AppControlador.class);
 
-	
-	
 	/**
-	 * Servicio para retornar un objeto OCTET_STREAM.
-     * @param Objeto JSON para recibir los datos por el RequestBody.
+	 * Servicio para retornar un objeto JSON o XML o OCTET_STREAM.
+     * @param Objeto JSON para recibir los datos por el RequestBody para el tipo de archivo de retorno.
      * 
-     * @return Objeto OCTET_STREAM.
-     * @throws Si el objeto OCTET_STREAM llega corrupto.
+     * @return Objeto JSON o XML o OCTET_STREAM.
+     * @throws Si el objeto JSON o XML o OCTET_STREAM llega corrupto.
      */
+	@SuppressWarnings("unchecked")
 	@RequestMapping(value = "/file", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE, produces = {MediaType.APPLICATION_JSON_VALUE,
 																														  MediaType.APPLICATION_XML_VALUE,
 																														  MediaType.APPLICATION_OCTET_STREAM_VALUE})
@@ -47,6 +46,7 @@ public class AppControlador {
 		
 		// Variables
 		Map<String,Object> mapBody = new HashMap<String,Object>();
+		Map<String,Object> map = new HashMap<String,Object>();
 		mapBody = (Map<String,Object>) request.getBody();
 		String typeFile = mapBody.get("typeFile").toString();
 		final String JSON="1", XML="2", OCTEC_STREAM="3";
@@ -56,9 +56,9 @@ public class AppControlador {
 		switch(typeFile){
 		
 			case JSON:
-				LOGGER.info("EndPoint JSON");
+				LOGGER.info("EndPoint JSON in method file");
 				
-				Map<String,Object> map = new HashMap<String,Object>();
+				map = new HashMap<String,Object>();
 				map.put("type", "JSON");
 				map.put("EndPoint", "JSON");
 				
@@ -67,10 +67,9 @@ public class AppControlador {
 			            .contentType(
 			                    MediaType.parseMediaType("application/json"))
 			            .body(map);
-				//break;
 				
 			case XML:
-				LOGGER.info("EndPoint XML");
+				LOGGER.info("EndPoint XML in method file");
 				
 				pdfFile = new ClassPathResource("EjemploXML.xml");
 				
@@ -80,10 +79,9 @@ public class AppControlador {
 			            .contentType(
 			                    MediaType.parseMediaType("application/xml"))
 			            .body(new InputStreamResource(pdfFile.getInputStream()));
-				//break;
 				
 			case OCTEC_STREAM:
-				LOGGER.info("EndPoint PDF");
+				LOGGER.info("EndPoint PDF in method file");
 				LOGGER.info("JSON: " + request.getBody().toString());
 				
 				pdfFile = new ClassPathResource("menu.pdf");
@@ -94,95 +92,21 @@ public class AppControlador {
 			            .contentType(
 			                    MediaType.parseMediaType("application/octet-stream"))
 			            .body(new InputStreamResource(pdfFile.getInputStream()));
-				//break;
 				
 				default:
-					System.out.println("Archivo NO Valido");
-					break;
+					LOGGER.info("El tipo de archivo es incorrecto");
+					
+					map = new HashMap<String,Object>();
+					map.put("Error", "El tipo de archivo es incorrecto");
+					
+				    return ResponseEntity
+				            .ok()
+				            .contentType(
+				                    MediaType.parseMediaType("application/json"))
+				            .body(map);
 		
 		}
 		
-		
-		LOGGER.info("EndPoint PDF");
-		LOGGER.info("JSON: " + request.getBody().toString());
-		pdfFile = new ClassPathResource("menu.pdf");
-		
-	    return ResponseEntity
-	            .ok()
-	            .contentLength(pdfFile.contentLength())
-	            .contentType(
-	                    MediaType.parseMediaType("application/octet-stream"))
-	            .body(new InputStreamResource(pdfFile.getInputStream()));
 	}
 	
-	
-	
-	/**
-	 * Servicio para retornar un objeto OCTET_STREAM.
-     * @param Objeto JSON para recibir los datos por el RequestBody.
-     * 
-     * @return Objeto OCTET_STREAM.
-     * @throws Si el objeto OCTET_STREAM llega corrupto.
-     */
-	@RequestMapping(value = "/PDF", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_OCTET_STREAM_VALUE)
-	public ResponseEntity<Object> PDF(RequestEntity<Object> request) throws IOException {
-		
-		LOGGER.info("EndPoint PDF");
-		LOGGER.info("JSON: " + request.getBody().toString());
-		ClassPathResource pdfFile = new ClassPathResource("menu.pdf");
-		
-	    return ResponseEntity
-	            .ok()
-	            .contentLength(pdfFile.contentLength())
-	            .contentType(
-	                    MediaType.parseMediaType("application/octet-stream"))
-	            .body(new InputStreamResource(pdfFile.getInputStream()));
-	}
-	
-	
-	/**
-	 * Servicio para retornar un objeto XML.
-     * @param Objeto JSON para recibir los datos por el RequestBody.
-     * 
-     * @return Objeto XML.
-     * @throws Si el objeto XML llega corrupto.
-     */
-	@RequestMapping(value = "/XML", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_XML_VALUE)
-	public ResponseEntity<Object> XML(RequestEntity<Object> request) throws IOException {
-		
-		LOGGER.info("EndPoint XML");
-		
-		ClassPathResource pdfFile = new ClassPathResource("EjemploXML.xml");
-		
-	    return ResponseEntity
-	            .ok()
-	            .contentLength(pdfFile.contentLength())
-	            .contentType(
-	                    MediaType.parseMediaType("application/xml"))
-	            .body(new InputStreamResource(pdfFile.getInputStream()));
-	}
-	
-	
-	/**
-	 * Servicio para retornar un objeto JSON.
-     * @param Objeto JSON para recibir los datos por el RequestBody.
-     * 
-     * @return Objeto JSON.
-     * @throws Si el objeto XML llega corrupto.
-     */
-	@RequestMapping(value = "/JSON", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-	public ResponseEntity<Object> JSON(RequestEntity<Object> request) throws IOException {
-		
-		LOGGER.info("EndPoint JSON");
-		
-		Map<String,Object> map = new HashMap<String,Object>();
-		map.put("type", "JSON");
-		map.put("EndPoint", "/JSON");
-		
-	    return ResponseEntity
-	            .ok()
-	            .contentType(
-	                    MediaType.parseMediaType("application/json"))
-	            .body(map);
-	}
 }
